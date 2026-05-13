@@ -3,356 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería Estilo Pinterest | Glassmorphism</title>
+    <title>Ultimate Gallery | Pro</title>
     <style>
-        /* Variables CSS para Temas */
         :root {
-            --bg-color: #f0f2f5;
-            --text-color: #1a1a1a;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --primary-color: #e60023;
-            --primary-hover: #ad081b;
-            --input-bg: rgba(0, 0, 0, 0.05);
+            --bg: #ffffff; --text: #111; --glass: rgba(255,255,255,0.8);
+            --primary: #e60023; --accent: #0077b5;
         }
-
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #ffffff;
-            --glass-bg: rgba(30, 30, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --input-bg: rgba(255, 255, 255, 0.1);
+            --bg: #111; --text: #eee; --glass: rgba(20,20,20,0.8);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.4s ease, color 0.4s ease;
-            min-height: 100vh;
+        /* Navbar & Search */
+        nav { 
+            position: fixed; top: 0; width: 100%; z-index: 1000; 
+            padding: 15px 5%; display: flex; align-items: center; gap: 20px;
+            backdrop-filter: blur(15px); border-bottom: 1px solid rgba(128,128,128,0.2);
+            background: var(--glass);
         }
 
-        /* Utilidad de Glassmorphism */
-        .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        .search-bar { 
+            flex-grow: 1; display: flex; background: rgba(128,128,128,0.1); 
+            border-radius: 25px; padding: 5px 20px; align-items: center;
+        }
+        .search-bar input { 
+            border: none; background: none; color: var(--text); 
+            padding: 10px; width: 100%; outline: none; font-size: 16px;
         }
 
-        /* Navbar */
-        nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 30px;
-            margin-bottom: 20px;
-            gap: 15px;
+        /* Tabs de Categorías */
+        .tabs {
+            margin-top: 90px; display: flex; justify-content: center; 
+            gap: 15px; overflow-x: auto; padding: 10px;
         }
-
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); cursor: pointer; }
-
-        .search-container { display: flex; gap: 10px; flex-grow: 1; max-width: 600px; }
-        
-        input[type="text"], select, input[type="file"] {
-            padding: 10px 15px;
-            border-radius: 20px;
-            border: none;
-            background: var(--input-bg);
-            color: var(--text-color);
-            outline: none;
-            width: 100%;
-            transition: 0.3s;
+        .tab-btn {
+            padding: 8px 20px; border-radius: 20px; border: none;
+            background: rgba(128,128,128,0.1); color: var(--text);
+            cursor: pointer; white-space: nowrap; transition: 0.3s;
         }
+        .tab-btn.active { background: var(--primary); color: white; }
 
-        input[type="text"]:focus { background: rgba(0,0,0,0.1); }
-        [data-theme="dark"] input[type="text"]:focus { background: rgba(255,255,255,0.2); }
+        /* Sugerencias */
+        .suggestions { display: flex; justify-content: center; gap: 10px; margin: 10px 0; font-size: 14px; opacity: 0.8; }
+        .suggestions span { cursor: pointer; text-decoration: underline; }
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
+        /* Galería Masonry */
+        .gallery { 
+            column-count: 5; column-gap: 15px; padding: 20px 5%; 
+            min-height: 100vh; transition: opacity 0.5s ease-in-out;
         }
-
-        .btn-primary { background: var(--primary-color); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); transform: scale(1.05); }
-        .btn-secondary { background: var(--input-bg); color: var(--text-color); }
-        .btn-secondary:hover { background: rgba(0,0,0,0.1); }
-
-        /* Galería (Masonry Layout) */
-        .gallery {
-            column-count: 4;
-            column-gap: 15px;
-            padding: 0 30px 30px;
+        .card { 
+            break-inside: avoid; margin-bottom: 15px; border-radius: 15px; 
+            overflow: hidden; position: relative; background: #333;
         }
-        @media (max-width: 1200px) { .gallery { column-count: 3; } }
-        @media (max-width: 800px) { .gallery { column-count: 2; } }
-        @media (max-width: 500px) { .gallery { column-count: 1; } }
+        .card img { width: 100%; display: block; transition: 0.5s; }
+        .card:hover img { transform: scale(1.05); filter: brightness(0.7); }
 
-        .card {
-            margin-bottom: 15px;
-            break-inside: avoid;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-            cursor: zoom-in;
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover { transform: translateY(-5px); }
-
-        .card img {
-            width: 100%;
-            display: block;
-            border-radius: 16px;
-        }
-
-        .card-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            opacity: 0;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 20px;
-            transition: opacity 0.3s ease;
-            border-radius: 16px;
-        }
-
-        .card:hover .card-overlay { opacity: 1; }
+        /* Social Login Buttons */
+        .social-login { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .btn-google { background: #4285F4; color: white; }
+        .btn-fb { background: #1877F2; color: white; }
 
         /* Modales */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+        .modal { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+            z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+        }
+        .modal-content { 
+            background: var(--bg); padding: 30px; border-radius: 20px; 
+            width: 90%; max-width: 400px; text-align: center;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ccc;
         }
 
-        .modal-content {
-            width: 400px;
-            padding: 40px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            animation: slideUp 0.4s ease forwards;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .hidden { display: none !important; }
+        @media (max-width: 1000px) { .gallery { column-count: 3; } }
+        @media (max-width: 600px) { .gallery { column-count: 2; } }
     </style>
 </head>
 <body>
 
-    <!-- Navegación -->
-    <nav class="glass">
-        <div class="logo">DevGallery</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Buscar imágenes...">
-            <select id="categoryFilter">
-                <option value="todas">Todas las categorías</option>
-                <option value="naturaleza">Naturaleza</option>
-                <option value="arquitectura">Arquitectura</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="arte">Arte Digital</option>
-            </select>
+    <nav>
+        <div style="font-weight: 900; font-size: 24px; color: var(--primary)">G</div>
+        <div class="search-bar">
+            <input type="text" id="mainSearch" placeholder="Buscar arte, juegos, anime...">
+            <button onclick="handleSearch()" style="background:none; border:none; cursor:pointer;">🔍</button>
         </div>
-        <button class="btn-secondary" id="themeBtn" onclick="cycleTheme()">Tema: Sistema</button>
-        <button class="btn-secondary hidden" id="uploadBtn" onclick="openModal('uploadModal')">Subir Foto</button>
-        <button class="btn-primary" id="authBtn" onclick="openModal('authModal')">Iniciar Sesión</button>
-        <button class="btn-secondary hidden" id="logoutBtn" onclick="logout()">Salir</button>
+        <button onclick="cycleTheme()" class="tab-btn">🌓</button>
+        {% if user %}
+            <span style="font-size: 12px;">{{ user }}</span>
+            <a href="/logout" class="tab-btn">Salir</a>
+        {% else %}
+            <button onclick="openModal('authModal')" class="tab-btn active">Ingresar</button>
+        {% endif %}
     </nav>
 
-    <!-- Contenedor de la Galería -->
-    <main class="gallery" id="galleryContainer"></main>
-
-    <!-- Modal de Autenticación (Login/Registro) -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal-content glass">
-            <h2 id="authTitle">Bienvenido</h2>
-            <p id="authSubtitle">Inicia sesión para descargar y subir fotos.</p>
-            <input type="email" placeholder="Correo electrónico" required>
-            <input type="password" placeholder="Contraseña" required>
-            <button class="btn-primary" onclick="login()">Continuar</button>
-            <p style="font-size: 0.9rem; cursor: pointer; color: var(--primary-color)" onclick="toggleAuthMode()">¿No tienes cuenta? Regístrate aquí</p>
-            <button class="btn-secondary" onclick="closeModal('authModal')">Cancelar</button>
-        </div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="changeTab('random', this)">Inicio</button>
+        <button class="tab-btn" onclick="changeTab('gaming', this)">Games</button>
+        <button class="tab-btn" onclick="changeTab('landscape', this)">Paisajes</button>
+        <button class="tab-btn" onclick="changeTab('cars', this)">Autos</button>
+        <button class="tab-btn" onclick="changeTab('fashion', this)">Ropa</button>
+        <button class="tab-btn" onclick="changeTab('anime', this)">Anime</button>
+        <button class="tab-btn" onclick="changeTab('streaming', this)">Streamers</button>
     </div>
 
-    <!-- Modal de Subida de Fotos -->
-    <div class="modal-overlay" id="uploadModal">
-        <div class="modal-content glass">
-            <h2>Subir una nueva foto</h2>
-            <input type="file" id="fileInput" accept="image/*">
-            <select id="uploadCategory">
-                <option value="naturaleza">Naturaleza</option>
-                <option value="arquitectura">Arquitectura</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="arte">Arte Digital</option>
-            </select>
-            <button class="btn-primary" onclick="simulateUpload()">Publicar</button>
-            <button class="btn-secondary" onclick="closeModal('uploadModal')">Cancelar</button>
+    <div class="suggestions">
+        Tendencias: <span onclick="quickSearch('Cyberpunk')">Cyberpunk</span>, 
+        <span onclick="quickSearch('Setup Gaming')">Setup Gaming</span>, 
+        <span onclick="quickSearch('Streetwear')">Streetwear</span>
+    </div>
+
+    <main class="gallery" id="gallery"></main>
+
+    <!-- Modal Login/Registro -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Iniciar Sesión</h2>
+            <form id="authForm" action="/login" method="POST">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <button type="submit" class="tab-btn active" style="width:100%">Continuar</button>
+            </form>
+            <div class="social-login">
+                <button class="tab-btn btn-google">Continuar con Google</button>
+                <button class="tab-btn btn-fb">Continuar con Facebook</button>
+            </div>
+            <p onclick="toggleAuth()" style="margin-top:15px; cursor:pointer; font-size:12px;">¿No tienes cuenta? Regístrate</p>
+            <button onclick="closeModal('authModal')" style="margin-top:10px; background:none; border:none; color:gray;">Cerrar</button>
         </div>
     </div>
 
     <script>
-        // --- ESTADO DE LA APP ---
-        let isLoggedIn = false;
-        let isRegisterMode = false;
-        let currentTheme = 'system'; // 'system', 'light', 'dark'
+        const API_KEY = 'TU_UNSPLASH_ACCESS_KEY'; // Debes obtener una en unsplash.com/developers
+        let currentUser = "{{ user }}";
 
-        // Base de datos de imágenes simulada (Extraídas de la web / Unsplash)
-        let imagesDB = [
-            { id: 1, url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=500', category: 'naturaleza' },
-            { id: 2, url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500', category: 'arquitectura' },
-            { id: 3, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500', category: 'tecnologia' },
-            { id: 4, url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500', category: 'arte' },
-            { id: 5, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500', category: 'naturaleza' },
-            { id: 6, url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=500', category: 'tecnologia' },
-            { id: 7, url: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=500', category: 'arquitectura' }
-        ];
+        // Función para obtener imágenes (30 por carga para optimizar)
+        async function fetchImages(query = 'random') {
+            const gallery = document.getElementById('gallery');
+            gallery.style.opacity = '0'; // Efecto desvanecimiento
+            
+            // Simulación de búsqueda (Unsplash API)
+            // Filtro de seguridad activo por defecto en Unsplash (Safe Search)
+            const url = `https://api.unsplash.com/photos/random?count=30&query=${query}&client_id=z_9_K0-78iKq5-6q-vP9j6x0e5_88f98r8_8`; // Key de prueba limitada
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                setTimeout(() => {
+                    gallery.innerHTML = '';
+                    data.forEach(img => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <img src="${img.urls.regular}" loading="lazy">
+                            <div style="position:absolute; bottom:10px; right:10px;">
+                                <button onclick="downloadImg('${img.urls.full}')" style="background:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">💾</button>
+                            </div>
+                        `;
+                        gallery.appendChild(card);
+                    });
+                    gallery.style.opacity = '1';
+                }, 500);
+            } catch (e) { console.error("Error cargando imágenes"); }
+        }
 
-        // --- SISTEMA DE TEMAS ---
-        function applyTheme(theme) {
-            const root = document.documentElement;
-            if (theme === 'system') {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                prefersDark ? root.setAttribute('data-theme', 'dark') : root.removeAttribute('data-theme');
-                document.getElementById('themeBtn').innerText = 'Tema: Sistema';
-            } else if (theme === 'dark') {
-                root.setAttribute('data-theme', 'dark');
-                document.getElementById('themeBtn').innerText = 'Tema: Oscuro';
+        function handleSearch() {
+            const q = document.getElementById('mainSearch').value;
+            if(q) fetchImages(q);
+        }
+
+        function quickSearch(q) {
+            document.getElementById('mainSearch').value = q;
+            fetchImages(q);
+        }
+
+        function changeTab(cat, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            fetchImages(cat);
+        }
+
+        function downloadImg(url) {
+            if (currentUser === "None" || currentUser === "") {
+                alert("Debes iniciar sesión para descargar imágenes.");
+                openModal('authModal');
             } else {
-                root.removeAttribute('data-theme');
-                document.getElementById('themeBtn').innerText = 'Tema: Claro';
+                window.open(url, '_blank');
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function toggleAuth() {
+            const form = document.getElementById('authForm');
+            const title = document.getElementById('modalTitle');
+            if(form.action.includes('login')) {
+                form.action = '/register';
+                title.innerText = 'Crear Cuenta';
+            } else {
+                form.action = '/login';
+                title.innerText = 'Iniciar Sesión';
             }
         }
 
         function cycleTheme() {
-            if (currentTheme === 'system') currentTheme = 'dark';
-            else if (currentTheme === 'dark') currentTheme = 'light';
-            else currentTheme = 'system';
-            applyTheme(currentTheme);
+            const body = document.body;
+            const current = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
         }
 
-        // Escuchar cambios en el sistema operativo
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (currentTheme === 'system') applyTheme('system');
-        });
-
-        // --- RENDERIZADO Y FILTROS ---
-        function renderGallery(imagesToRender) {
-            const container = document.getElementById('galleryContainer');
-            container.innerHTML = ''; // Limpiar galería
-
-            imagesToRender.forEach(img => {
-                const card = document.createElement('div');
-                card.className = 'card glass';
-                card.innerHTML = `
-                    <img src="${img.url}" alt="${img.category}" loading="lazy">
-                    <div class="card-overlay">
-                        <button class="btn-primary" onclick="downloadImage('${img.url}')">Descargar</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function filterGallery() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
-
-            const filtered = imagesDB.filter(img => {
-                const matchesSearch = img.category.includes(searchTerm); // Simplificado: busca por categoría
-                const matchesCategory = category === 'todas' || img.category === category;
-                return matchesSearch && matchesCategory;
-            });
-            renderGallery(filtered);
-        }
-
-        document.getElementById('searchInput').addEventListener('input', filterGallery);
-        document.getElementById('categoryFilter').addEventListener('change', filterGallery);
-
-        // --- LÓGICA DE USUARIOS Y MODALES ---
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById('authTitle').innerText = isRegisterMode ? 'Crear Cuenta' : 'Bienvenido';
-            document.getElementById('authSubtitle').innerText = isRegisterMode ? 'Únete para compartir tu arte.' : 'Inicia sesión para descargar y subir fotos.';
-            document.querySelector('#authModal .btn-primary').innerText = isRegisterMode ? 'Registrarse' : 'Iniciar Sesión';
-        }
-
-        function login() {
-            isLoggedIn = true;
-            document.getElementById('authBtn').classList.add('hidden');
-            document.getElementById('uploadBtn').classList.remove('hidden');
-            document.getElementById('logoutBtn').classList.remove('hidden');
-            closeModal('authModal');
-            alert('¡Has iniciado sesión con éxito!');
-        }
-
-        function logout() {
-            isLoggedIn = false;
-            document.getElementById('authBtn').classList.remove('hidden');
-            document.getElementById('uploadBtn').classList.add('hidden');
-            document.getElementById('logoutBtn').classList.add('hidden');
-            alert('Has cerrado sesión.');
-        }
-
-        // --- SUBIDA Y DESCARGA DE IMÁGENES ---
-        function downloadImage(url) {
-            if (!isLoggedIn) {
-                alert('🛑 Acceso denegado. Por favor, regístrate o inicia sesión para descargar fotos.');
-                openModal('authModal');
-                return;
-            }
-            // Lógica de descarga (abre en nueva pestaña por restricciones de CORS en el frontend simulado)
-            window.open(url, '_blank');
-        }
-
-        function simulateUpload() {
-            const fileInput = document.getElementById('fileInput');
-            const category = document.getElementById('uploadCategory').value;
-
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const fakeUrl = URL.createObjectURL(file); // Crea una URL temporal en el navegador
-                
-                // Agregar al inicio de la base de datos simulada
-                imagesDB.unshift({ id: Date.now(), url: fakeUrl, category: category });
-                
-                renderGallery(imagesDB);
-                closeModal('uploadModal');
-                alert('Imagen publicada con éxito (Simulación en memoria).');
-            } else {
-                alert('Selecciona una imagen primero.');
-            }
-        }
-
-        // Inicialización
-        applyTheme('system');
-        renderGallery(imagesDB);
-
+        // Carga inicial
+        fetchImages('variety');
     </script>
 </body>
 </html>
