@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelFlow Pro - Galería Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #111111;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --accent-color: #e60023;
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --overlay: rgba(0, 0, 0, 0.5);
+            --input-bg: #efefef;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111111;
+            --text-color: #ffffff;
+            --card-bg: rgba(30, 30, 30, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --input-bg: #2b2b2b;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
+
+        /* --- NAVEGACIÓN MEJORADA CON SEARCH --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 80px;
+            display: flex; align-items: center; gap: 20px;
+            padding: 0 2rem; background: var(--card-bg);
+            backdrop-filter: blur(20px); z-index: 1000;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo { font-weight: 700; font-size: 1.5rem; color: var(--accent-color); text-decoration: none; min-width: fit-content; }
+
+        .search-container {
+            flex-grow: 1;
+            position: relative;
+            max-width: 800px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 25px;
+            border: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: box-shadow 0.2s;
+        }
+
+        .search-bar:focus { box-shadow: 0 0 0 4px rgba(230, 0, 35, 0.2); }
+
+        .search-icon {
+            position: absolute; left: 15px; top: 50%;
+            transform: translateY(-50%); opacity: 0.5;
+        }
+
+        .nav-controls { display: flex; gap: 12px; align-items: center; }
+
+        /* --- FILTROS DE CATEGORÍA --- */
+        .categories-wrapper {
+            margin-top: 100px;
+            padding: 10px 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .cat-chip {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .cat-chip:hover, .cat-chip.active {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        /* --- GRID --- */
+        .masonry-grid {
+            columns: 5 250px; column-gap: 15px;
+            width: 95%; max-width: 1600px;
+            margin: 20px auto;
+        }
+
+        .pin-card {
+            break-inside: avoid; margin-bottom: 15px;
+            position: relative; border-radius: 16px;
+            overflow: hidden; background: var(--input-bg);
+            animation: fadeIn 0.5s ease backwards;
+        }
+
+        .pin-card img { width: 100%; display: block; transition: 0.3s; }
+        .pin-card:hover img { transform: scale(1.05); filter: brightness(0.8); }
+
+        .pin-overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 15px; opacity: 0; transition: 0.3s;
+        }
+
+        .pin-card:hover .pin-overlay { opacity: 1; }
+
+        .btn-download {
+            align-self: flex-end; background: white; color: black;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: grid; place-items: center; text-decoration: none; font-weight: bold;
+        }
+
+        /* --- MODALES --- */
+        .modal {
+            position: fixed; inset: 0; background: var(--overlay);
+            backdrop-filter: blur(10px); display: none;
+            place-items: center; z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--bg-color); padding: 40px;
+            border-radius: 30px; width: 90%; max-width: 400px;
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        button, select { cursor: pointer; padding: 10px 18px; border-radius: 20px; border: 1px solid var(--glass-border); }
+        .btn-primary { background: var(--accent-color); color: white; border: none; font-weight: bold; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo">PixelFlow</a>
+        
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="main-search" class="search-bar" placeholder="Busca 'Ciberpunk' o 'Minimalismo'...">
+        </div>
+
+        <div class="nav-controls">
+            <select id="theme-select">
+                <option value="light">☀️</option>
+                <option value="dark">🌙</option>
+                <option value="system">💻</option>
+            </select>
+            <button id="login-trigger" class="btn-primary">Entrar</button>
+            <button id="logout-btn" style="display:none">Salir</button>
+        </div>
+    </nav>
+
+    <div class="categories-wrapper" id="filters">
+        <button class="cat-chip active" data-query="random">Todo</button>
+        <button class="cat-chip" data-query="architecture">Arquitectura</button>
+        <button class="cat-chip" data-query="minimalism">Minimalismo</button>
+        <button class="cat-chip" data-query="cyberpunk">Ciberpunk</button>
+        <button class="cat-chip" data-query="nature">Naturaleza</button>
+        <button class="cat-chip" data-query="textures">Texturas</button>
+        <button class="cat-chip" data-query="street photography">Calle</button>
+    </div>
+
+    <div class="masonry-grid" id="grid"></div>
+
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <h2 id="m-title">Bienvenido</h2>
+            <form id="auth-form">
+                <input type="email" placeholder="Email" required style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ccc;">
+                <input type="password" placeholder="Contraseña" required style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ccc;">
+                <button type="submit" class="btn-primary" style="width:100%; padding:12px;">Continuar</button>
+            </form>
+            <p id="toggle-auth" style="margin-top:15px; font-size:0.8rem; cursor:pointer">¿No tienes cuenta? Regístrate</p>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+
+        // --- GESTIÓN DE IMÁGENES ---
+        async function loadImages(query = 'random') {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = ''; // Limpiar grid
+            
+            // Generamos 15 imágenes basadas en la temática
+            for(let i=0; i<15; i++) {
+                const randomId = Math.floor(Math.random() * 1000);
+                const width = 400;
+                const height = Math.floor(Math.random() * (600 - 350) + 350);
+                // Usamos una semilla basada en la búsqueda para variar los resultados
+                const imageUrl = `https://picsum.photos/seed/${query+randomId}/${width}/${height}`;
+                
+                const card = document.createElement('div');
+                card.className = 'pin-card';
+                card.style.animationDelay = `${i * 0.05}s`;
+                card.innerHTML = `
+                    <img src="${imageUrl}" loading="lazy">
+                    <div class="pin-overlay">
+                        <button class="btn-primary" style="width:fit-content; align-self:flex-end">Guardar</button>
+                        <a href="#" class="btn-download" onclick="checkDownload(event, '${imageUrl}')">↓</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        // --- BÚSQUEDA Y FILTROS ---
+        const searchInput = document.getElementById('main-search');
+        const filterBtns = document.querySelectorAll('.cat-chip');
+
+        // Buscar al presionar Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter' && searchInput.value.trim() !== "") {
+                loadImages(searchInput.value.trim());
+                filterBtns.forEach(b => b.classList.remove('active'));
+            }
+        });
+
+        // Filtrar por botones
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                searchInput.value = ""; // Limpiar búsqueda manual
+                loadImages(btn.dataset.query);
+            });
+        });
+
+        // --- AUTENTICACIÓN ---
+        const authModal = document.getElementById('auth-modal');
+        const loginTrigger = document.getElementById('login-trigger');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        function updateAuthUI() {
+            if(currentUser) {
+                loginTrigger.style.display = 'none';
+                logoutBtn.style.display = 'block';
+            } else {
+                loginTrigger.style.display = 'block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        loginTrigger.onclick = () => authModal.style.display = 'grid';
+        window.onclick = (e) => { if(e.target == authModal) authModal.style.display = 'none' };
+
+        document.getElementById('auth-form').onsubmit = (e) => {
+            e.preventDefault();
+            currentUser = { login: true };
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            authModal.style.display = 'none';
+            updateAuthUI();
+        };
+
+        logoutBtn.onclick = () => {
+            localStorage.removeItem('user');
+            location.reload();
+        };
+
+        function checkDownload(e, url) {
+            e.preventDefault();
+            if(!currentUser) {
+                alert("🔒 Debes iniciar sesión para descargar imágenes.");
+                authModal.style.display = 'grid';
+            } else {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = "PixelFlow_Image.jpg";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // --- TEMAS ---
+        const themeSelect = document.getElementById('theme-select');
+        themeSelect.onchange = (e) => {
+            const val = e.target.value;
+            if(val === 'system') {
+                const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', val);
+            }
+        };
+
+        // Inicio
+        updateAuthUI();
+        loadImages();
+    </script>
+</body>
+</html>
