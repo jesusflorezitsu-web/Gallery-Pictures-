@@ -1,309 +1,358 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="system">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelFlow Pro - Galería Inteligente</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Galería Estilo Pinterest | Glassmorphism</title>
     <style>
+        /* Variables CSS para Temas */
         :root {
-            --bg-color: #ffffff;
-            --text-color: #111111;
-            --card-bg: rgba(255, 255, 255, 0.7);
-            --accent-color: #e60023;
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --overlay: rgba(0, 0, 0, 0.5);
-            --input-bg: #efefef;
+            --bg-color: #f0f2f5;
+            --text-color: #1a1a1a;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --primary-color: #e60023;
+            --primary-hover: #ad081b;
+            --input-bg: rgba(0, 0, 0, 0.05);
         }
 
         [data-theme="dark"] {
-            --bg-color: #111111;
+            --bg-color: #121212;
             --text-color: #ffffff;
-            --card-bg: rgba(30, 30, 30, 0.7);
+            --glass-bg: rgba(30, 30, 30, 0.7);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --input-bg: #2b2b2b;
+            --input-bg: rgba(255, 255, 255, 0.1);
         }
 
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            min-height: 100vh;
         }
 
-        body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
+        /* Utilidad de Glassmorphism */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
 
-        /* --- NAVEGACIÓN MEJORADA CON SEARCH --- */
+        /* Navbar */
         nav {
-            position: fixed; top: 0; width: 100%; height: 80px;
-            display: flex; align-items: center; gap: 20px;
-            padding: 0 2rem; background: var(--card-bg);
-            backdrop-filter: blur(20px); z-index: 1000;
-            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            margin-bottom: 20px;
+            gap: 15px;
         }
 
-        .logo { font-weight: 700; font-size: 1.5rem; color: var(--accent-color); text-decoration: none; min-width: fit-content; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); cursor: pointer; }
 
-        .search-container {
-            flex-grow: 1;
-            position: relative;
-            max-width: 800px;
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 12px 20px 12px 45px;
-            border-radius: 25px;
+        .search-container { display: flex; gap: 10px; flex-grow: 1; max-width: 600px; }
+        
+        input[type="text"], select, input[type="file"] {
+            padding: 10px 15px;
+            border-radius: 20px;
             border: none;
             background: var(--input-bg);
             color: var(--text-color);
-            font-size: 1rem;
             outline: none;
-            transition: box-shadow 0.2s;
+            width: 100%;
+            transition: 0.3s;
         }
 
-        .search-bar:focus { box-shadow: 0 0 0 4px rgba(230, 0, 35, 0.2); }
+        input[type="text"]:focus { background: rgba(0,0,0,0.1); }
+        [data-theme="dark"] input[type="text"]:focus { background: rgba(255,255,255,0.2); }
 
-        .search-icon {
-            position: absolute; left: 15px; top: 50%;
-            transform: translateY(-50%); opacity: 0.5;
-        }
-
-        .nav-controls { display: flex; gap: 12px; align-items: center; }
-
-        /* --- FILTROS DE CATEGORÍA --- */
-        .categories-wrapper {
-            margin-top: 100px;
-            padding: 10px 2rem;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .cat-chip {
+        button {
             padding: 10px 20px;
+            border: none;
             border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            background: var(--card-bg);
-            color: var(--text-color);
             cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
 
-        .cat-chip:hover, .cat-chip.active {
-            background: var(--text-color);
-            color: var(--bg-color);
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: scale(1.05); }
+        .btn-secondary { background: var(--input-bg); color: var(--text-color); }
+        .btn-secondary:hover { background: rgba(0,0,0,0.1); }
+
+        /* Galería (Masonry Layout) */
+        .gallery {
+            column-count: 4;
+            column-gap: 15px;
+            padding: 0 30px 30px;
+        }
+        @media (max-width: 1200px) { .gallery { column-count: 3; } }
+        @media (max-width: 800px) { .gallery { column-count: 2; } }
+        @media (max-width: 500px) { .gallery { column-count: 1; } }
+
+        .card {
+            margin-bottom: 15px;
+            break-inside: avoid;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
         }
 
-        /* --- GRID --- */
-        .masonry-grid {
-            columns: 5 250px; column-gap: 15px;
-            width: 95%; max-width: 1600px;
-            margin: 20px auto;
+        .card:hover { transform: translateY(-5px); }
+
+        .card img {
+            width: 100%;
+            display: block;
+            border-radius: 16px;
         }
 
-        .pin-card {
-            break-inside: avoid; margin-bottom: 15px;
-            position: relative; border-radius: 16px;
-            overflow: hidden; background: var(--input-bg);
-            animation: fadeIn 0.5s ease backwards;
+        .card-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            opacity: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+            border-radius: 16px;
         }
 
-        .pin-card img { width: 100%; display: block; transition: 0.3s; }
-        .pin-card:hover img { transform: scale(1.05); filter: brightness(0.8); }
+        .card:hover .card-overlay { opacity: 1; }
 
-        .pin-overlay {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 15px; opacity: 0; transition: 0.3s;
-        }
-
-        .pin-card:hover .pin-overlay { opacity: 1; }
-
-        .btn-download {
-            align-self: flex-end; background: white; color: black;
-            width: 40px; height: 40px; border-radius: 50%;
-            display: grid; place-items: center; text-decoration: none; font-weight: bold;
-        }
-
-        /* --- MODALES --- */
-        .modal {
-            position: fixed; inset: 0; background: var(--overlay);
-            backdrop-filter: blur(10px); display: none;
-            place-items: center; z-index: 2000;
+        /* Modales */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
 
         .modal-content {
-            background: var(--bg-color); padding: 40px;
-            border-radius: 30px; width: 90%; max-width: 400px;
-            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            width: 400px;
+            padding: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: slideUp 0.4s ease forwards;
         }
 
-        button, select { cursor: pointer; padding: 10px 18px; border-radius: 20px; border: 1px solid var(--glass-border); }
-        .btn-primary { background: var(--accent-color); color: white; border: none; font-weight: bold; }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <a href="#" class="logo">PixelFlow</a>
-        
+    <!-- Navegación -->
+    <nav class="glass">
+        <div class="logo">DevGallery</div>
         <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="main-search" class="search-bar" placeholder="Busca 'Ciberpunk' o 'Minimalismo'...">
-        </div>
-
-        <div class="nav-controls">
-            <select id="theme-select">
-                <option value="light">☀️</option>
-                <option value="dark">🌙</option>
-                <option value="system">💻</option>
+            <input type="text" id="searchInput" placeholder="Buscar imágenes...">
+            <select id="categoryFilter">
+                <option value="todas">Todas las categorías</option>
+                <option value="naturaleza">Naturaleza</option>
+                <option value="arquitectura">Arquitectura</option>
+                <option value="tecnologia">Tecnología</option>
+                <option value="arte">Arte Digital</option>
             </select>
-            <button id="login-trigger" class="btn-primary">Entrar</button>
-            <button id="logout-btn" style="display:none">Salir</button>
         </div>
+        <button class="btn-secondary" id="themeBtn" onclick="cycleTheme()">Tema: Sistema</button>
+        <button class="btn-secondary hidden" id="uploadBtn" onclick="openModal('uploadModal')">Subir Foto</button>
+        <button class="btn-primary" id="authBtn" onclick="openModal('authModal')">Iniciar Sesión</button>
+        <button class="btn-secondary hidden" id="logoutBtn" onclick="logout()">Salir</button>
     </nav>
 
-    <div class="categories-wrapper" id="filters">
-        <button class="cat-chip active" data-query="random">Todo</button>
-        <button class="cat-chip" data-query="architecture">Arquitectura</button>
-        <button class="cat-chip" data-query="minimalism">Minimalismo</button>
-        <button class="cat-chip" data-query="cyberpunk">Ciberpunk</button>
-        <button class="cat-chip" data-query="nature">Naturaleza</button>
-        <button class="cat-chip" data-query="textures">Texturas</button>
-        <button class="cat-chip" data-query="street photography">Calle</button>
+    <!-- Contenedor de la Galería -->
+    <main class="gallery" id="galleryContainer"></main>
+
+    <!-- Modal de Autenticación (Login/Registro) -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-content glass">
+            <h2 id="authTitle">Bienvenido</h2>
+            <p id="authSubtitle">Inicia sesión para descargar y subir fotos.</p>
+            <input type="email" placeholder="Correo electrónico" required>
+            <input type="password" placeholder="Contraseña" required>
+            <button class="btn-primary" onclick="login()">Continuar</button>
+            <p style="font-size: 0.9rem; cursor: pointer; color: var(--primary-color)" onclick="toggleAuthMode()">¿No tienes cuenta? Regístrate aquí</p>
+            <button class="btn-secondary" onclick="closeModal('authModal')">Cancelar</button>
+        </div>
     </div>
 
-    <div class="masonry-grid" id="grid"></div>
-
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <h2 id="m-title">Bienvenido</h2>
-            <form id="auth-form">
-                <input type="email" placeholder="Email" required style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ccc;">
-                <input type="password" placeholder="Contraseña" required style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ccc;">
-                <button type="submit" class="btn-primary" style="width:100%; padding:12px;">Continuar</button>
-            </form>
-            <p id="toggle-auth" style="margin-top:15px; font-size:0.8rem; cursor:pointer">¿No tienes cuenta? Regístrate</p>
+    <!-- Modal de Subida de Fotos -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content glass">
+            <h2>Subir una nueva foto</h2>
+            <input type="file" id="fileInput" accept="image/*">
+            <select id="uploadCategory">
+                <option value="naturaleza">Naturaleza</option>
+                <option value="arquitectura">Arquitectura</option>
+                <option value="tecnologia">Tecnología</option>
+                <option value="arte">Arte Digital</option>
+            </select>
+            <button class="btn-primary" onclick="simulateUpload()">Publicar</button>
+            <button class="btn-secondary" onclick="closeModal('uploadModal')">Cancelar</button>
         </div>
     </div>
 
     <script>
-        let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+        // --- ESTADO DE LA APP ---
+        let isLoggedIn = false;
+        let isRegisterMode = false;
+        let currentTheme = 'system'; // 'system', 'light', 'dark'
 
-        // --- GESTIÓN DE IMÁGENES ---
-        async function loadImages(query = 'random') {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = ''; // Limpiar grid
-            
-            // Generamos 15 imágenes basadas en la temática
-            for(let i=0; i<15; i++) {
-                const randomId = Math.floor(Math.random() * 1000);
-                const width = 400;
-                const height = Math.floor(Math.random() * (600 - 350) + 350);
-                // Usamos una semilla basada en la búsqueda para variar los resultados
-                const imageUrl = `https://picsum.photos/seed/${query+randomId}/${width}/${height}`;
-                
+        // Base de datos de imágenes simulada (Extraídas de la web / Unsplash)
+        let imagesDB = [
+            { id: 1, url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=500', category: 'naturaleza' },
+            { id: 2, url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500', category: 'arquitectura' },
+            { id: 3, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500', category: 'tecnologia' },
+            { id: 4, url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500', category: 'arte' },
+            { id: 5, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500', category: 'naturaleza' },
+            { id: 6, url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=500', category: 'tecnologia' },
+            { id: 7, url: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=500', category: 'arquitectura' }
+        ];
+
+        // --- SISTEMA DE TEMAS ---
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                prefersDark ? root.setAttribute('data-theme', 'dark') : root.removeAttribute('data-theme');
+                document.getElementById('themeBtn').innerText = 'Tema: Sistema';
+            } else if (theme === 'dark') {
+                root.setAttribute('data-theme', 'dark');
+                document.getElementById('themeBtn').innerText = 'Tema: Oscuro';
+            } else {
+                root.removeAttribute('data-theme');
+                document.getElementById('themeBtn').innerText = 'Tema: Claro';
+            }
+        }
+
+        function cycleTheme() {
+            if (currentTheme === 'system') currentTheme = 'dark';
+            else if (currentTheme === 'dark') currentTheme = 'light';
+            else currentTheme = 'system';
+            applyTheme(currentTheme);
+        }
+
+        // Escuchar cambios en el sistema operativo
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentTheme === 'system') applyTheme('system');
+        });
+
+        // --- RENDERIZADO Y FILTROS ---
+        function renderGallery(imagesToRender) {
+            const container = document.getElementById('galleryContainer');
+            container.innerHTML = ''; // Limpiar galería
+
+            imagesToRender.forEach(img => {
                 const card = document.createElement('div');
-                card.className = 'pin-card';
-                card.style.animationDelay = `${i * 0.05}s`;
+                card.className = 'card glass';
                 card.innerHTML = `
-                    <img src="${imageUrl}" loading="lazy">
-                    <div class="pin-overlay">
-                        <button class="btn-primary" style="width:fit-content; align-self:flex-end">Guardar</button>
-                        <a href="#" class="btn-download" onclick="checkDownload(event, '${imageUrl}')">↓</a>
+                    <img src="${img.url}" alt="${img.category}" loading="lazy">
+                    <div class="card-overlay">
+                        <button class="btn-primary" onclick="downloadImage('${img.url}')">Descargar</button>
                     </div>
                 `;
-                grid.appendChild(card);
-            }
-        }
-
-        // --- BÚSQUEDA Y FILTROS ---
-        const searchInput = document.getElementById('main-search');
-        const filterBtns = document.querySelectorAll('.cat-chip');
-
-        // Buscar al presionar Enter
-        searchInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && searchInput.value.trim() !== "") {
-                loadImages(searchInput.value.trim());
-                filterBtns.forEach(b => b.classList.remove('active'));
-            }
-        });
-
-        // Filtrar por botones
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                searchInput.value = ""; // Limpiar búsqueda manual
-                loadImages(btn.dataset.query);
+                container.appendChild(card);
             });
-        });
+        }
 
-        // --- AUTENTICACIÓN ---
-        const authModal = document.getElementById('auth-modal');
-        const loginTrigger = document.getElementById('login-trigger');
-        const logoutBtn = document.getElementById('logout-btn');
+        function filterGallery() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
 
-        function updateAuthUI() {
-            if(currentUser) {
-                loginTrigger.style.display = 'none';
-                logoutBtn.style.display = 'block';
+            const filtered = imagesDB.filter(img => {
+                const matchesSearch = img.category.includes(searchTerm); // Simplificado: busca por categoría
+                const matchesCategory = category === 'todas' || img.category === category;
+                return matchesSearch && matchesCategory;
+            });
+            renderGallery(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterGallery);
+        document.getElementById('categoryFilter').addEventListener('change', filterGallery);
+
+        // --- LÓGICA DE USUARIOS Y MODALES ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('authTitle').innerText = isRegisterMode ? 'Crear Cuenta' : 'Bienvenido';
+            document.getElementById('authSubtitle').innerText = isRegisterMode ? 'Únete para compartir tu arte.' : 'Inicia sesión para descargar y subir fotos.';
+            document.querySelector('#authModal .btn-primary').innerText = isRegisterMode ? 'Registrarse' : 'Iniciar Sesión';
+        }
+
+        function login() {
+            isLoggedIn = true;
+            document.getElementById('authBtn').classList.add('hidden');
+            document.getElementById('uploadBtn').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            closeModal('authModal');
+            alert('¡Has iniciado sesión con éxito!');
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('authBtn').classList.remove('hidden');
+            document.getElementById('uploadBtn').classList.add('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            alert('Has cerrado sesión.');
+        }
+
+        // --- SUBIDA Y DESCARGA DE IMÁGENES ---
+        function downloadImage(url) {
+            if (!isLoggedIn) {
+                alert('🛑 Acceso denegado. Por favor, regístrate o inicia sesión para descargar fotos.');
+                openModal('authModal');
+                return;
+            }
+            // Lógica de descarga (abre en nueva pestaña por restricciones de CORS en el frontend simulado)
+            window.open(url, '_blank');
+        }
+
+        function simulateUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const category = document.getElementById('uploadCategory').value;
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fakeUrl = URL.createObjectURL(file); // Crea una URL temporal en el navegador
+                
+                // Agregar al inicio de la base de datos simulada
+                imagesDB.unshift({ id: Date.now(), url: fakeUrl, category: category });
+                
+                renderGallery(imagesDB);
+                closeModal('uploadModal');
+                alert('Imagen publicada con éxito (Simulación en memoria).');
             } else {
-                loginTrigger.style.display = 'block';
-                logoutBtn.style.display = 'none';
+                alert('Selecciona una imagen primero.');
             }
         }
 
-        loginTrigger.onclick = () => authModal.style.display = 'grid';
-        window.onclick = (e) => { if(e.target == authModal) authModal.style.display = 'none' };
+        // Inicialización
+        applyTheme('system');
+        renderGallery(imagesDB);
 
-        document.getElementById('auth-form').onsubmit = (e) => {
-            e.preventDefault();
-            currentUser = { login: true };
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            authModal.style.display = 'none';
-            updateAuthUI();
-        };
-
-        logoutBtn.onclick = () => {
-            localStorage.removeItem('user');
-            location.reload();
-        };
-
-        function checkDownload(e, url) {
-            e.preventDefault();
-            if(!currentUser) {
-                alert("🔒 Debes iniciar sesión para descargar imágenes.");
-                authModal.style.display = 'grid';
-            } else {
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = "PixelFlow_Image.jpg";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-
-        // --- TEMAS ---
-        const themeSelect = document.getElementById('theme-select');
-        themeSelect.onchange = (e) => {
-            const val = e.target.value;
-            if(val === 'system') {
-                const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', val);
-            }
-        };
-
-        // Inicio
-        updateAuthUI();
-        loadImages();
     </script>
 </body>
 </html>
