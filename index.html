@@ -33,7 +33,6 @@
             min-height: 100vh;
         }
 
-        /* Utilidad de Glassmorphism */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -56,11 +55,29 @@
             gap: 15px;
         }
 
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); cursor: pointer; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); cursor: pointer; flex-shrink: 0; }
 
-        .search-container { display: flex; gap: 10px; flex-grow: 1; max-width: 600px; }
+        .nav-center { display: flex; align-items: center; gap: 10px; flex-grow: 1; max-width: 800px; }
         
-        input[type="text"], select, input[type="file"] {
+        .search-container { flex-grow: 1; }
+        
+        .categories-wrapper { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+        .categories-wrapper::-webkit-scrollbar { display: none; }
+        
+        .cat-pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+        .cat-pill.active { background: var(--text-color); color: var(--bg-color); }
+
+        input[type="text"], input[type="email"], input[type="password"] {
             padding: 10px 15px;
             border-radius: 20px;
             border: none;
@@ -70,9 +87,6 @@
             width: 100%;
             transition: 0.3s;
         }
-
-        input[type="text"]:focus { background: rgba(0,0,0,0.1); }
-        [data-theme="dark"] input[type="text"]:focus { background: rgba(255,255,255,0.2); }
 
         button {
             padding: 10px 20px;
@@ -85,10 +99,28 @@
 
         .btn-primary { background: var(--primary-color); color: white; }
         .btn-primary:hover { background: var(--primary-hover); transform: scale(1.05); }
-        .btn-secondary { background: var(--input-bg); color: var(--text-color); }
-        .btn-secondary:hover { background: rgba(0,0,0,0.1); }
+        .btn-secondary { background: var(--input-bg); color: var(--text-color); flex-shrink: 0; }
 
-        /* Galería (Masonry Layout) */
+        /* Menú de Usuario Desplegable */
+        .user-menu-container { position: relative; display: inline-block; }
+        .user-avatar {
+            width: 40px; height: 40px; border-radius: 50%; 
+            background: var(--primary-color); color: white; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; border: 2px solid var(--glass-border);
+            text-transform: uppercase;
+        }
+        .user-dropdown {
+            position: absolute; right: 0; top: 50px; width: 180px;
+            display: none; flex-direction: column; gap: 5px; padding: 10px; z-index: 1000;
+        }
+        .user-dropdown-item {
+            padding: 8px 12px; border-radius: 8px; text-align: left; background: transparent;
+            color: var(--text-color); width: 100%; font-size: 0.9rem;
+        }
+        .user-dropdown-item:hover { background: var(--input-bg); }
+
+        /* Galería */
         .gallery {
             column-count: 4;
             column-gap: 15px;
@@ -106,394 +138,443 @@
             position: relative;
             cursor: zoom-in;
             transition: transform 0.3s ease;
+            background: var(--input-bg);
         }
+        .card img { width: 100%; display: block; border-radius: 16px; transition: 0.3s; opacity: 0; }
+        .card img.loaded { opacity: 1; }
+        .card:hover img { transform: scale(1.03); filter: brightness(0.85); }
 
-        .card:hover { transform: translateY(-5px); }
-
-        .card img {
-            width: 100%;
-            display: block;
-            border-radius: 16px;
-        }
-
+        /* Overlay con Controles */
         .card-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            opacity: 0;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 20px;
-            transition: opacity 0.3s ease;
-            border-radius: 16px;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 12px;
         }
-
         .card:hover .card-overlay { opacity: 1; }
+        .overlay-top { display: flex; justify-content: flex-end; gap: 8px; }
+        .overlay-bottom { display: flex; justify-content: center; }
+        
+        .btn-round-icon {
+            background: rgba(255,255,255,0.9); color: #1a1a1a; width: 36px; height: 36px;
+            border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        }
+        .btn-round-icon.liked { color: var(--primary-color); }
+
+        /* Skeleton Loading Animation */
+        .skeleton {
+            position: relative; overflow: hidden; background: var(--input-bg); min-height: 250px; border-radius: 16px;
+        }
+        .skeleton::after {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.3) 60%, rgba(255,255,255,0) 100%);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
 
         /* Modales */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            background: rgba(0,0,0,0.6);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
         }
-
-        .modal-content {
-            width: 400px;
-            padding: 40px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            animation: slideUp 0.4s ease forwards;
+        .modal-content { width: 420px; padding: 30px; text-align: center; }
+        
+        /* Formulario del Modal */
+        .auth-form {
+            display: flex; flex-direction: column; gap: 12px; margin-top: 20px; text-align: left;
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
+        .auth-form label { font-size: 0.85rem; font-weight: 600; opacity: 0.8; margin-bottom: -4px; }
+        
         .hidden { display: none !important; }
 
-        /* Estilos para el Lightbox de Ampliación */
-        .zoom-overlay {
+        /* Lightbox Avanzado Pantalla Completa */
+        .lightbox-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(8px);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
             z-index: 2000;
         }
-
-        .zoom-container {
-            position: relative;
-            overflow: hidden;
-            max-width: 90%;
-            max-height: 80vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .lightbox-container {
+            position: relative; width: 90%; height: 80vh;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
-
-        #zoomedImg {
-            transition: transform 0.2s ease;
-            cursor: grab;
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 8px;
+        #lightboxImg {
+            max-width: 100%; max-height: 100%; border-radius: 12px;
+            transition: transform 0.2s ease; cursor: grab;
         }
-
-        .zoom-controls {
-            margin-top: 20px;
-            display: flex;
-            gap: 15px;
-            z-index: 2001;
+        .lightbox-btn {
+            position: absolute; background: rgba(255,255,255,0.1); color: white;
+            border: 1px solid rgba(255,255,255,0.2); width: 50px; height: 50px;
+            border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; transition: 0.3s; z-index: 2100;
         }
-
-        .btn-zoom {
-            background: var(--glass-bg);
-            color: var(--text-color);
-            border: 1px solid var(--glass-border);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
+        .lightbox-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+        .lightbox-prev { left: 30px; }
+        .lightbox-next { right: 30px; }
+        .lightbox-close { top: 30px; right: 30px; font-size: 1.8rem; }
+        
+        .lightbox-controls {
+            margin-top: 15px; display: flex; gap: 10px; z-index: 2100;
         }
+        .btn-zoom { width: 40px; height: 40px; border-radius: 50%; padding: 0; font-size: 1.2rem; background: white; color: black; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #111; color: #fff; padding: 12px 24px; border-radius: 30px;
+            font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 3000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 
-    <!-- Navegación -->
     <nav class="glass">
-        <div class="logo">DevGallery</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Buscar imágenes...">
-            <select id="categoryFilter">
-                <option value="todas">Todas las categorías</option>
-                <option value="naturaleza">Naturaleza</option>
-                <option value="arquitectura">Arquitectura</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="arte">Arte Digital</option>
-            </select>
+        <div class="logo" onclick="location.reload()">DevGallery</div>
+        
+        <div class="nav-center">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar imágenes...">
+            </div>
+            <div class="categories-wrapper" id="catWrapper">
+                <button class="cat-pill active" onclick="filterCategory('todas', this)">Todas</button>
+                <button class="cat-pill" onclick="filterCategory('naturaleza', this)">Naturaleza</button>
+                <button class="cat-pill" onclick="filterCategory('arquitectura', this)">Arquitectura</button>
+                <button class="cat-pill" onclick="filterCategory('tecnologia', this)">Tecnología</button>
+                <button class="cat-pill" onclick="filterCategory('arte', this)">Arte Digital</button>
+                <button class="cat-pill" style="color: var(--primary-color)" onclick="filterCategory('favoritos', this)">❤️ Favoritos</button>
+            </div>
         </div>
+
         <button class="btn-secondary" id="themeBtn" onclick="cycleTheme()">Tema: Sistema</button>
-        <button class="btn-secondary hidden" id="uploadBtn" onclick="openModal('uploadModal')">Subir Foto</button>
         <button class="btn-primary" id="authBtn" onclick="openModal('authModal')">Iniciar Sesión</button>
-        <button class="btn-secondary hidden" id="logoutBtn" onclick="logout()">Salir</button>
+        
+        <div class="user-menu-container hidden" id="userMenu">
+            <div class="user-avatar" id="userAvatarIcon" onclick="toggleUserDropdown()">U</div>
+            <div class="user-dropdown glass" id="userDropdown">
+                <button class="user-dropdown-item" id="menuUserName">Mi Perfil</button>
+                <button class="user-dropdown-item">Configuración</button>
+                <hr style="border: 0.5px solid var(--glass-border); margin: 5px 0;">
+                <button class="user-dropdown-item" style="color: var(--primary-color);" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
     </nav>
 
-    <!-- Contenedor de la Galería -->
     <main class="gallery" id="galleryContainer"></main>
 
-    <!-- Modal de Autenticación (Login/Registro) -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-content glass">
-            <h2 id="authTitle">Bienvenido</h2>
-            <p id="authSubtitle">Inicia sesión para descargar y subir fotos.</p>
-            <input type="email" placeholder="Correo electrónico" required>
-            <input type="password" placeholder="Contraseña" required>
-            <button class="btn-primary" onclick="login()">Continuar</button>
-            <p style="font-size: 0.9rem; cursor: pointer; color: var(--primary-color)" onclick="toggleAuthMode()">¿No tienes cuenta? Regístrate aquí</p>
-            <button class="btn-secondary" onclick="closeModal('authModal')">Cancelar</button>
+            <h2>Crea tu cuenta</h2>
+            <p style="margin-top: 5px; font-size: 0.9rem; opacity: 0.7;">Regístrate para interactuar y descargar contenido de la plataforma.</p>
+            
+            <form class="auth-form" id="registerForm" onsubmit="handleFormLogin(event)">
+                <label for="regName">Nombre y Apellido</label>
+                <input type="text" id="regName" placeholder="Ej. Juan Pérez" required>
+                
+                <label for="regEmail">Correo Electrónico</label>
+                <input type="email" id="regEmail" placeholder="correo@ejemplo.com" required>
+                
+                <label for="regPass">Contraseña</label>
+                <input type="password" id="regPass" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">Comenzar a explorar</button>
+                <button type="button" class="btn-secondary" id="closeFormBtn" style="width: 100%;" onclick="closeModal('authModal')">Cerrar</button>
+            </form>
         </div>
     </div>
 
-    <!-- Modal de Subida de Fotos -->
-    <div class="modal-overlay" id="uploadModal">
-        <div class="modal-content glass">
-            <h2>Subir una nueva foto</h2>
-            <input type="file" id="fileInput" accept="image/*">
-            <select id="uploadCategory">
-                <option value="naturaleza">Naturaleza</option>
-                <option value="arquitectura">Arquitectura</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="arte">Arte Digital</option>
-            </select>
-            <button class="btn-primary" onclick="simulateUpload()">Publicar</button>
-            <button class="btn-secondary" onclick="closeModal('uploadModal')">Cancelar</button>
+    <div class="lightbox-overlay" id="lightbox" onclick="closeLightbox(event)">
+        <button class="lightbox-btn lightbox-close" onclick="closeLightbox(force=true)">&times;</button>
+        <button class="lightbox-btn lightbox-prev" onclick="navigateLightbox(-1)">&#10094;</button>
+        <button class="lightbox-btn lightbox-next" onclick="navigateLightbox(1)">&#10095;</button>
+        
+        <div class="lightbox-container">
+            <img src="" id="lightboxImg" alt="Visualización">
+        </div>
+
+        <div class="lightbox-controls">
+            <button class="btn-zoom" onclick="zoomLightbox(0.15)">+</button>
+            <button class="btn-zoom" onclick="zoomLightbox(-0.15)">-</button>
+            <button class="btn-zoom" onclick="resetZoomLightbox()">Reset</button>
         </div>
     </div>
+
+    <div class="toast" id="toastNotification">¡Enlace copiado al portapapeles! 🚀</div>
 
     <script>
-        // --- ESTADO DE LA APP ---
         let isLoggedIn = false;
-        let isRegisterMode = false;
-        let currentTheme = 'system'; // 'system', 'light', 'dark'
+        let currentTheme = 'system';
+        let activeCategory = 'todas';
+        let authTimer = null; // Guardará la referencia del temporizador de 15s
+        
+        let favorites = JSON.parse(localStorage.getItem('devGallery_favs')) || [];
+        let itemsToShow = 8;
+        let filteredImages = [];
+        let currentLightboxIndex = 0;
+        let lightboxScale = 1;
 
-        // Base de datos de imágenes simulada (Extraídas de la web / Unsplash)
         let imagesDB = [
             { id: 1, url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=500', category: 'naturaleza' },
-            { id: 2, url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500', category: 'arquitectura' },
-            { id: 3, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500', category: 'tecnologia' },
-            { id: 4, url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500', category: 'arte' },
-            { id: 5, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500', category: 'naturaleza' },
-            { id: 6, url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=500', category: 'tecnologia' },
-            { id: 7, url: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=500', category: 'arquitectura' }
+            { id: 7, url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500', category: 'arquitectura' },
+            { id: 11, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500', category: 'tecnologia' },
+            { id: 16, url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500', category: 'arte' },
+            { id: 2, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500', category: 'naturaleza' },
+            { id: 22, url: 'https://images.unsplash.com/photo-1481026469463-66327c86e544?w=500', category: 'arquitectura' },
+            { id: 3, url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=500', category: 'naturaleza' },
+            { id: 4, url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=500', category: 'naturaleza' },
+            { id: 8, url: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=500', category: 'arquitectura' },
+            { id: 12, url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500', category: 'tecnologia' },
+            { id: 17, url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500', category: 'arte' },
+            { id: 13, url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500', category: 'tecnologia' }
         ];
 
-        // --- SISTEMA DE TEMAS ---
-        function applyTheme(theme) {
-            const root = document.documentElement;
-            if (theme === 'system') {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                prefersDark ? root.setAttribute('data-theme', 'dark') : root.removeAttribute('data-theme');
-                document.getElementById('themeBtn').innerText = 'Tema: Sistema';
-            } else if (theme === 'dark') {
-                root.setAttribute('data-theme', 'dark');
-                document.getElementById('themeBtn').innerText = 'Tema: Oscuro';
-            } else {
-                root.removeAttribute('data-theme');
-                document.getElementById('themeBtn').innerText = 'Tema: Claro';
-            }
+        // [INTERACCIÓN DE SEGURIDAD 2] Temporizador de 15 Segundos en la página
+        function startAuthTimeout() {
+            authTimer = setTimeout(() => {
+                if (!isLoggedIn) {
+                    // Ocultamos el botón "Cerrar" del modal para obligar el Login tras los 15 segundos
+                    document.getElementById('closeFormBtn').classList.add('hidden');
+                    openModal('authModal');
+                }
+            }, 15000); // 15000 ms = 15 segundos
         }
 
-        function cycleTheme() {
-            if (currentTheme === 'system') currentTheme = 'dark';
-            else if (currentTheme === 'dark') currentTheme = 'light';
-            else currentTheme = 'system';
-            applyTheme(currentTheme);
-        }
-
-        // Escuchar cambios en el sistema operativo
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (currentTheme === 'system') applyTheme('system');
-        });
-
-        // --- RENDERIZADO Y FILTROS ---
-        function renderGallery(imagesToRender) {
+        function renderGallery(resetScroll = true) {
             const container = document.getElementById('galleryContainer');
-            container.innerHTML = ''; // Limpiar galería
+            if (resetScroll) {
+                container.innerHTML = '';
+                itemsToShow = 8;
+            }
 
-            imagesToRender.forEach(img => {
+            const currentLength = container.children.length;
+            const chunk = filteredImages.slice(currentLength, itemsToShow);
+
+            chunk.forEach((img, globalIndex) => {
+                const actualIndex = currentLength + globalIndex;
+                const isLiked = favorites.includes(img.id);
                 const card = document.createElement('div');
-                card.className = 'card glass';
+                card.className = 'card glass skeleton';
+                card.onclick = () => openLightbox(actualIndex);
+                
                 card.innerHTML = `
-                    <img src="${img.url}" alt="${img.category}" loading="lazy">
+                    <img src="${img.url}" alt="${img.category}" onload="imageLoaded(this)">
                     <div class="card-overlay">
-                        <button class="btn-primary" onclick="downloadImage('${img.url}')">Descargar</button>
+                        <div class="overlay-top">
+                            <button class="btn-round-icon" onclick="event.stopPropagation(); shareImage('${img.url}')">🔗</button>
+                            <button class="btn-round-icon ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${img.id}, this)">❤️</button>
+                        </div>
+                        <div class="overlay-bottom">
+                            <button class="btn-primary" onclick="event.stopPropagation(); downloadReal('${img.url}', 'foto-${img.id}.jpg')">Descargar</button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function filterGallery() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
+        function imageLoaded(img) {
+            img.classList.add('loaded');
+            img.parentElement.classList.remove('skeleton');
+        }
 
-            const filtered = imagesDB.filter(img => {
-                const matchesSearch = img.category.includes(searchTerm); // Simplificado: busca por categoría
-                const matchesCategory = category === 'todas' || img.category === category;
+        function toggleLike(id, btn) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+                btn.classList.remove('liked');
+            } else {
+                favorites.push(id);
+                btn.classList.add('liked');
+            }
+            localStorage.setItem('devGallery_favs', JSON.stringify(favorites));
+            if (activeCategory === 'favoritos') applyFilters();
+        }
+
+        async function shareImage(url) {
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'Mira esta foto en DevGallery', url: url });
+                } catch (err) { console.log('Uso compartido cancelado'); }
+            } else {
+                navigator.clipboard.writeText(url);
+                showToast("¡Enlace de imagen copiado! 🚀");
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // [INTERACCIÓN DE SEGURIDAD 1] Interceptar descargas si no está autenticado
+        async function downloadReal(url, filename) {
+            if (!isLoggedIn) {
+                showToast("Debes iniciar sesión para descargar imágenes 🔒");
+                document.getElementById('closeFormBtn').classList.remove('hidden'); // Permitir cerrar si fue por clic manual
+                openModal('authModal');
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                window.open(url, '_blank');
+            }
+        }
+
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            const imgData = filteredImages[currentLightboxIndex];
+            if (!imgData) return;
+
+            const lightboxImg = document.getElementById('lightboxImg');
+            lightboxImg.src = imgData.url;
+            document.getElementById('lightbox').style.display = 'flex';
+            resetZoomLightbox();
+        }
+
+        function closeLightbox(event, force = false) {
+            if (force || event.target === document.getElementById('lightbox') || event.target.classList.contains('lightbox-container')) {
+                document.getElementById('lightbox').style.display = 'none';
+            }
+        }
+
+        function navigateLightbox(direction) {
+            currentLightboxIndex += direction;
+            if (currentLightboxIndex >= filteredImages.length) currentLightboxIndex = 0;
+            if (currentLightboxIndex < 0) currentLightboxIndex = filteredImages.length - 1;
+            openLightbox(currentLightboxIndex);
+        }
+
+        function zoomLightbox(amount) {
+            lightboxScale += amount;
+            lightboxScale = Math.min(Math.max(0.6, lightboxScale), 3);
+            document.getElementById('lightboxImg').style.transform = `scale(${lightboxScale})`;
+        }
+
+        function resetZoomLightbox() {
+            lightboxScale = 1;
+            document.getElementById('lightboxImg').style.transform = `scale(1)`;
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').style.display === 'flex') {
+                if (e.key === 'ArrowRight') navigateLightbox(1);
+                if (e.key === 'ArrowLeft') navigateLightbox(-1);
+                if (e.key === 'Escape') closeLightbox(null, true);
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                if (itemsToShow < filteredImages.length) {
+                    itemsToShow += 4;
+                    renderGallery(false);
+                }
+            }
+        });
+
+        function filterCategory(cat, btn) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filteredImages = imagesDB.filter(img => {
+                const matchesSearch = img.category.includes(searchTerm);
+                let matchesCategory = activeCategory === 'todas' || img.category === activeCategory;
+                
+                if (activeCategory === 'favoritos') {
+                    matchesCategory = favorites.includes(img.id);
+                }
                 return matchesSearch && matchesCategory;
             });
-            renderGallery(filtered);
+            renderGallery(true);
         }
 
-        document.getElementById('searchInput').addEventListener('input', filterGallery);
-        document.getElementById('categoryFilter').addEventListener('change', filterGallery);
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
 
-        // --- LÓGICA DE USUARIOS Y MODALES ---
+        function cycleTheme() {
+            const root = document.documentElement;
+            if (currentTheme === 'system') {
+                currentTheme = 'dark';
+                root.setAttribute('data-theme', 'dark');
+                document.getElementById('themeBtn').innerText = 'Tema: Oscuro';
+            } else {
+                currentTheme = 'system';
+                root.removeAttribute('data-theme');
+                document.getElementById('themeBtn').innerText = 'Tema: Sistema';
+            }
+        }
+
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById('authTitle').innerText = isRegisterMode ? 'Crear Cuenta' : 'Bienvenido';
-            document.getElementById('authSubtitle').innerText = isRegisterMode ? 'Únete para compartir tu arte.' : 'Inicia sesión para descargar y subir fotos.';
-            document.querySelector('#authModal .btn-primary').innerText = isRegisterMode ? 'Registrarse' : 'Iniciar Sesión';
-        }
-
-        function login() {
-            isLoggedIn = true;
-            document.getElementById('authBtn').classList.add('hidden');
-            document.getElementById('uploadBtn').classList.remove('hidden');
-            document.getElementById('logoutBtn').classList.remove('hidden');
-            closeModal('authModal');
-            alert('¡Has iniciado sesión con éxito!');
+        
+        // [MEJORA DE FORMULARIO] Gestión y recolección de los datos ingresados
+        function handleFormLogin(event) {
+            event.preventDefault(); // Evita la recarga de página nativa del formulario
+            
+            const fullName = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            
+            if(fullName && email) {
+                isLoggedIn = true;
+                
+                // Extraer la primera letra para el Avatar circular
+                const firstLetter = fullName.charAt(0);
+                document.getElementById('userAvatarIcon').innerText = firstLetter;
+                
+                // Configurar nombre en el menú desplegable
+                document.getElementById('menuUserName').innerText = fullName;
+                
+                // Cambiar visibilidad de los botones en la Navbar
+                document.getElementById('authBtn').classList.add('hidden');
+                document.getElementById('userMenu').classList.remove('hidden');
+                
+                // Limpiar el temporizador para que no moleste más
+                clearTimeout(authTimer);
+                
+                closeModal('authModal');
+                showToast(`¡Bienvenido, ${fullName}! 🎉`);
+            }
         }
 
         function logout() {
             isLoggedIn = false;
             document.getElementById('authBtn').classList.remove('hidden');
-            document.getElementById('uploadBtn').classList.add('hidden');
-            document.getElementById('logoutBtn').classList.add('hidden');
-            alert('Has cerrado sesión.');
+            document.getElementById('userMenu').classList.add('hidden');
+            document.getElementById('userDropdown').style.display = 'none';
+            
+            // Limpiar inputs
+            document.getElementById('registerForm').reset();
+            
+            // Reiniciar temporizador al cerrar sesión
+            startAuthTimeout();
         }
 
-        // --- SUBIDA Y DESCARGA DE IMÁGENES ---
-        function downloadImage(url) {
-            if (!isLoggedIn) {
-                alert('🛑 Acceso denegado. Por favor, regístrate o inicia sesión para descargar fotos.');
-                openModal('authModal');
-                return;
-            }
-            // Lógica de descarga (abre en nueva pestaña por restricciones de CORS en el frontend simulado)
-            window.open(url, '_blank');
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        function simulateUpload() {
-            const fileInput = document.getElementById('fileInput');
-            const category = document.getElementById('uploadCategory').value;
-
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const fakeUrl = URL.createObjectURL(file); // Crea una URL temporal en el navegador
-                
-                // Agregar al inicio de la base de datos simulada
-                imagesDB.unshift({ id: Date.now(), url: fakeUrl, category: category });
-                
-                renderGallery(imagesDB);
-                closeModal('uploadModal');
-                alert('Imagen publicada con éxito (Simulación en memoria).');
-            } else {
-                alert('Selecciona una imagen primero.');
-            }
-        }
-
-        // Inicialización
-        applyTheme('system');
-        renderGallery(imagesDB);
-
-        // --- LÓGICA DE ZOOM Y AMPLIACIÓN ---
-        let currentScale = 1;
-        const zoomOverlay = document.getElementById('zoomOverlay');
-        const zoomedImg = document.getElementById('zoomedImg');
-
-        // Modificamos la función de renderizado para que la imagen sea clickeable
-        // Nota: Esta función sobreescribe la lógica de click de la tarjeta
-        function openZoom(url) {
-            zoomedImg.src = url;
-            zoomOverlay.style.display = 'flex';
-            resetZoom();
-        }
-
-        function closeZoom() {
-            zoomOverlay.style.display = 'none';
-        }
-
-        function changeZoom(amount) {
-            currentScale += amount;
-            // Limitar el zoom mínimo a 0.5 y máximo a 3
-            currentScale = Math.min(Math.max(0.5, currentScale), 3);
-            zoomedImg.style.transform = `scale(${currentScale})`;
-        }
-
-        function resetZoom() {
-            currentScale = 1;
-            zoomedImg.style.transform = `scale(1)`;
-        }
-
-        function handleOutsideClick(event) {
-            // Si hace click en el fondo oscuro, se cierra
-            if (event.target === zoomOverlay) closeZoom();
-        }
-
-        // --- ACTUALIZACIÓN NECESARIA EN RENDERGALLERY ---
-        // Debes actualizar la función renderGallery original para que al hacer click en la carta se abra el zoom
-        // Busca en tu código la función renderGallery y asegúrate de que el div 'card' tenga este onclick:
-        
-        const originalRender = renderGallery;
-        renderGallery = function(imagesToRender) {
-            const container = document.getElementById('galleryContainer');
-            container.innerHTML = ''; 
-
-            imagesToRender.forEach(img => {
-                const card = document.createElement('div');
-                card.className = 'card glass';
-                // Añadimos el evento de apertura de zoom al hacer click en la tarjeta
-                card.onclick = () => openZoom(img.url); 
-                
-                card.innerHTML = `
-                    <img src="${img.url}" alt="${img.category}" loading="lazy">
-                    <div class="card-overlay">
-                        <button class="btn-primary" onclick="event.stopPropagation(); downloadImage('${img.url}')">Descargar</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-        
-        // Volver a renderizar para aplicar los cambios de click
-        renderGallery(imagesDB);
-        
+        // Inicialización de la aplicación
+        applyFilters();
+        startAuthTimeout(); // Iniciar cuenta atrás de los 15 segundos
     </script>
 </body>
-<!-- Modal para Ampliar Imagen y Zoom -->
-    <div class="zoom-overlay" id="zoomOverlay" onclick="handleOutsideClick(event)">
-        <span class="close-btn" style="position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer;" onclick="closeZoom()">&times;</span>
-        
-        <div class="zoom-container">
-            <img src="" id="zoomedImg" alt="Ampliación">
-        </div>
-
-        <div class="zoom-controls">
-            <button class="btn-zoom" onclick="changeZoom(0.1)">+</button>
-            <button class="btn-zoom" onclick="changeZoom(-0.1)">-</button>
-            <button class="btn-zoom" onclick="resetZoom()">Reset</button>
-        </div>
-    </div>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
