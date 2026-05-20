@@ -307,45 +307,81 @@
         let isLoggedIn = false;
         let currentTheme = 'system';
         let activeCategory = 'todas';
-        let authTimer = null; // Guardará la referencia del temporizador de 15s
+        let authTimer = null; 
         
         let favorites = JSON.parse(localStorage.getItem('devGallery_favs')) || [];
-        let itemsToShow = 8;
+        let itemsToShow = 16; // Incrementado a 16 para mostrar mucha más variedad desde el inicio
         let filteredImages = [];
         let currentLightboxIndex = 0;
         let lightboxScale = 1;
 
+        // --- BASE DE DATOS COMPLETA ---
         let imagesDB = [
-            { id: 1, url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=500', category: 'naturaleza' },
-            { id: 7, url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500', category: 'arquitectura' },
-            { id: 11, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500', category: 'tecnologia' },
-            { id: 16, url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=500', category: 'arte' },
-            { id: 2, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500', category: 'naturaleza' },
-            { id: 22, url: 'https://images.unsplash.com/photo-1481026469463-66327c86e544?w=500', category: 'arquitectura' },
-            { id: 3, url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=500', category: 'naturaleza' },
-            { id: 4, url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=500', category: 'naturaleza' },
-            { id: 8, url: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=500', category: 'arquitectura' },
-            { id: 12, url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500', category: 'tecnologia' },
-            { id: 17, url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500', category: 'arte' },
-            { id: 13, url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500', category: 'tecnologia' }
+            // Naturaleza
+            { id: 1, url: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 2, url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 3, url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 4, url: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 5, url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 6, url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 25, url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 26, url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 27, url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+            { id: 28, url: 'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?auto=format&fit=crop&w=600&q=80', category: 'naturaleza' },
+
+            // Arquitectura
+            { id: 7, url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 22, url: 'https://images.unsplash.com/photo-1449156001931-89332135a99a?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 8, url: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 9, url: 'https://images.unsplash.com/photo-1481026469463-66327c86e544?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 10, url: 'https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 24, url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 29, url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 30, url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 31, url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+            { id: 32, url: 'https://images.unsplash.com/photo-1487958449913-d957d6929944?auto=format&fit=crop&w=600&q=80', category: 'arquitectura' },
+
+            // Tecnología
+            { id: 11, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 12, url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 13, url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 14, url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 15, url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 23, url: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 33, url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 34, url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 35, url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+            { id: 36, url: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=600&q=80', category: 'tecnologia' },
+
+            // Arte Digital
+            { id: 16, url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 17, url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 18, url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 19, url: 'https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 20, url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 37, url: 'https://images.unsplash.com/photo-1617791160505-6f006e121980?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 38, url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 39, url: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 40, url: 'https://images.unsplash.com/photo-1515405295579-ba7b45403062?auto=format&fit=crop&w=600&q=80', category: 'arte' },
+            { id: 41, url: 'https://images.unsplash.com/photo-1525480122447-64809d765ec4?auto=format&fit=crop&w=600&q=80', category: 'arte' }
         ];
 
-        // [INTERACCIÓN DE SEGURIDAD 2] Temporizador de 15 Segundos en la página
+        // Temporizador de 15 Segundos en la página
         function startAuthTimeout() {
             authTimer = setTimeout(() => {
                 if (!isLoggedIn) {
-                    // Ocultamos el botón "Cerrar" del modal para obligar el Login tras los 15 segundos
                     document.getElementById('closeFormBtn').classList.add('hidden');
                     openModal('authModal');
                 }
-            }, 15000); // 15000 ms = 15 segundos
+            }, 15000); 
         }
 
         function renderGallery(resetScroll = true) {
             const container = document.getElementById('galleryContainer');
             if (resetScroll) {
                 container.innerHTML = '';
-                itemsToShow = 8;
+                // Al reiniciar, si es "todas", muestra 16 elementos directamente para dar variedad masiva
+                itemsToShow = activeCategory === 'todas' ? 16 : 8;
             }
 
             const currentLength = container.children.length;
@@ -359,7 +395,7 @@
                 card.onclick = () => openLightbox(actualIndex);
                 
                 card.innerHTML = `
-                    <img src="${img.url}" alt="${img.category}" onload="imageLoaded(this)">
+                    <img src="${img.url}" alt="${img.category}" onload="imageLoaded(this)" onerror="imageLoadError(this)">
                     <div class="card-overlay">
                         <div class="overlay-top">
                             <button class="btn-round-icon" onclick="event.stopPropagation(); shareImage('${img.url}')">🔗</button>
@@ -375,6 +411,12 @@
         }
 
         function imageLoaded(img) {
+            img.classList.add('loaded');
+            img.parentElement.classList.remove('skeleton');
+        }
+
+        function imageLoadError(img) {
+            img.src = 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=600&q=80';
             img.classList.add('loaded');
             img.parentElement.classList.remove('skeleton');
         }
@@ -409,11 +451,10 @@
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
 
-        // [INTERACCIÓN DE SEGURIDAD 1] Interceptar descargas si no está autenticado
         async function downloadReal(url, filename) {
             if (!isLoggedIn) {
                 showToast("Debes iniciar sesión para descargar imágenes 🔒");
-                document.getElementById('closeFormBtn').classList.remove('hidden'); // Permitir cerrar si fue por clic manual
+                document.getElementById('closeFormBtn').classList.remove('hidden'); 
                 openModal('authModal');
                 return;
             }
@@ -478,7 +519,7 @@
         });
 
         window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 150) {
                 if (itemsToShow < filteredImages.length) {
                     itemsToShow += 4;
                     renderGallery(false);
@@ -525,30 +566,19 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
-        // [MEJORA DE FORMULARIO] Gestión y recolección de los datos ingresados
         function handleFormLogin(event) {
-            event.preventDefault(); // Evita la recarga de página nativa del formulario
-            
+            event.preventDefault(); 
             const fullName = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             
             if(fullName && email) {
                 isLoggedIn = true;
-                
-                // Extraer la primera letra para el Avatar circular
                 const firstLetter = fullName.charAt(0);
                 document.getElementById('userAvatarIcon').innerText = firstLetter;
-                
-                // Configurar nombre en el menú desplegable
                 document.getElementById('menuUserName').innerText = fullName;
-                
-                // Cambiar visibilidad de los botones en la Navbar
                 document.getElementById('authBtn').classList.add('hidden');
                 document.getElementById('userMenu').classList.remove('hidden');
-                
-                // Limpiar el temporizador para que no moleste más
                 clearTimeout(authTimer);
-                
                 closeModal('authModal');
                 showToast(`¡Bienvenido, ${fullName}! 🎉`);
             }
@@ -559,22 +589,23 @@
             document.getElementById('authBtn').classList.remove('hidden');
             document.getElementById('userMenu').classList.add('hidden');
             document.getElementById('userDropdown').style.display = 'none';
-            
-            // Limpiar inputs
             document.getElementById('registerForm').reset();
-            
-            // Reiniciar temporizador al cerrar sesión
             startAuthTimeout();
         }
 
-        function toggleUserDropdown() {
+        document.getElementById('userAvatarIcon').addEventListener('click', (e) => {
+            e.stopPropagation();
             const dropdown = document.getElementById('userDropdown');
             dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
-        }
+        });
 
-        // Inicialización de la aplicación
+        document.addEventListener('click', () => {
+            document.getElementById('userDropdown').style.display = 'none';
+        });
+
+        // Inicialización
         applyFilters();
-        startAuthTimeout(); // Iniciar cuenta atrás de los 15 segundos
+        startAuthTimeout(); 
     </script>
 </body>
 </html>
